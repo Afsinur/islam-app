@@ -7,6 +7,7 @@ const copyType_div = document.querySelectorAll("div.copyType > div");
 const translateCopy_ = document.querySelector("div.translateCopy");
 const CopyPreviewedOne_ = document.querySelector("div.CopyPreviewedOne");
 const previewOn_ = document.querySelector("div.previewOn");
+const previewOn_1 = document.querySelector("div.previewOn_1");
 const _copyWhat = document.querySelectorAll("span.copyWhat");
 const _detail_preview = document.querySelector("div.enlarge_preview");
 const _ok = document.querySelector("div.enlarge_preview > button");
@@ -14,14 +15,18 @@ const copyDivTextContainer_ = document.querySelector(
   "div.copyDivTextContainer"
 );
 
+//javascript styles
+
 //variables
+const jsonPTH = `../json/`; //for github deploy https://raw.githubusercontent.com/Afsinur/islam-app/master/json/
 let appTopicDiv,
   selectioned,
   selectioned_1,
   selectioned_2,
   mouseDowned,
   singleTXTcpy,
-  allTXTcpy;
+  allTXTcpy,
+  largePreviewTXT;
 const appTopics_ = [
   {
     arabicTitle: "اقرأ القرآن",
@@ -41,12 +46,14 @@ const navRoutes = [
   { router: "Surahs" },
 ];
 const loadThisManyTimes = 15;
-const incLoadByNumber = 10;
+let incLoadByNumber = 10;
+let scrollAddBefore = 50;
 let mouseDownCount = 0;
 let bodyMouseDownedWhenGoingToCopyCount = 0;
 let scrollToGetCount = 0;
 let currentPageScrollingOn = null;
 let scrollSpark = 0;
+let drkCnd = 0;
 
 //objects
 const tamplateString = {
@@ -123,6 +130,22 @@ const tamplateString = {
    </div>
   </div>
   `;
+  },
+  QrnsingleTXTcpy: (currentsurahlive, currentsurahtext, data) => {
+    return `
+    <p>Quran( ${currentsurahlive}: ${currentsurahtext} )</p>
+    <p>${data.arabic}</p>
+    <p>${data.bangla}</p>
+    <p>${data.english}</p>
+    `;
+  },
+  QrnallTXTcpy: (currentsurahlive, data, i) => {
+    return `
+    <p>Quran( ${currentsurahlive}: ${i + 1} )</p>
+    <p>${data.arabic}</p>
+    <p>${data.bangla}</p>
+    <p>${data.english}</p>
+    `;
   },
   Hdbks_: (i, data) => {
     return `
@@ -243,6 +266,42 @@ const tamplateString = {
     </div>
     `;
   },
+  HDsingleTXTcpy: (data) => {
+    return `
+                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
+      data.no
+    } )</p>
+                <p>${data.currentChapter.chapterName}</p>
+                <p>${data.currentChapter.title}</p>
+                <p>${
+                  data.currentChapter.about != undefined
+                    ? data.currentChapter.about
+                    : (data.currentChapter.about = "")
+                }</p>
+                <p>${remainLineBrk(data.arabic)}</p>
+                <p>${data.narrationFrom}<br>${remainLineBrk(data.bangla)}</p>
+                <p>${remainLineBrk(data.footNote)}</p>
+                <p>${data.grade}</p>
+                `;
+  },
+  HDallTXTcpy: (data) => {
+    return `
+                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
+      data.no
+    } )</p>
+                <p>${data.currentChapter.chapterName}</p>
+                <p>${data.currentChapter.title}</p>
+                <p>${
+                  data.currentChapter.about != undefined
+                    ? data.currentChapter.about
+                    : (data.currentChapter.about = "")
+                }</p>
+                <p>${remainLineBrk(data.arabic)}</p>
+                <p>${data.narrationFrom}<br>${remainLineBrk(data.bangla)}</p>
+                <p>${remainLineBrk(data.footNote)}</p>
+                <p>${data.grade}</p>
+                `;
+  },
 };
 const mtcPages = {
   _Quran: {
@@ -273,6 +332,76 @@ const Get_Data = async (url) => {
 };
 
 //functions
+const bodyDRK = (drkCnd) => {
+  if (drkCnd === 1) {
+    document.body.style.background = `#505050`;
+  } else {
+    document.body.style.background = `#e0e0e0`;
+  }
+};
+
+const darkMOd = (drkCnd) => {
+  if (drkCnd === 1) {
+    document.querySelectorAll(".singleSurahTexts").forEach((span) => {
+      span.style.background = `#121212`;
+      span.style.color = `#b9b9b9`;
+    });
+
+    document.querySelectorAll(".surahCollectionDiv").forEach((span) => {
+      span.style.background = `#121212`;
+      Array.from(span.children).forEach((cld) => {
+        cld.style.color = `#b9b9b9`;
+      });
+    });
+  } else {
+    document.querySelectorAll(".singleSurahTexts").forEach((span) => {
+      span.style.background = `#f5f0f0`;
+      span.style.color = `#404040`;
+    });
+
+    document.querySelectorAll(".surahCollectionDiv").forEach((span) => {
+      span.style.background = `#f5f0f0`;
+      Array.from(span.children).forEach((cld) => {
+        cld.style.color = `#404040`;
+      });
+    });
+  }
+};
+
+const mousemoveVol = () => {
+  incLoadByNumber = parseInt(vol.value);
+  if (parseInt(vol.value) > 30) {
+    document.querySelector(
+      ".VOL"
+    ).innerHTML = `${vol.value} <span style="color:#de0000">High risk!</span>`;
+  } else {
+    document.querySelector(".VOL").innerHTML = `${vol.value}`;
+  }
+};
+
+const VOL_value = () => {
+  vol.value = incLoadByNumber;
+  document.querySelector(".VOL").innerHTML = `${vol.value}`;
+};
+
+const hideSettings = (e) => {
+  let cond_1 = "settingsDiv";
+
+  if (e.target.className.includes(cond_1)) {
+    document.querySelector("div.settingsDiv").style.display = "none";
+  }
+};
+
+const changeHeightApp_ = () => {
+  app_ = document.querySelector("div.app");
+
+  app_.style.height = `${
+    document.body.clientHeight -
+    document.querySelector("div.top_").clientHeight -
+    50
+  }px`;
+};
+
 const colorReturn = (data) => {
   if (
     data === "সহিহ হাদিস" ||
@@ -329,10 +458,10 @@ const addItems = () => {
   if (currentPageScrollingOn != null) {
     //mtcPages._Quran.cond_1
     const commonFunc = (e) => {
-      let scrollHeight__ = app_.scrollHeight - 5;
+      let scrollHeight__ = app_.scrollHeight - scrollAddBefore;
       if (
         app_.scrollTop + app_.offsetHeight >= scrollHeight__ &&
-        scrollSpark > 1
+        scrollSpark > 5
       ) {
         let forward_ = (scrollToGetCount += incLoadByNumber);
         let i = forward_ - incLoadByNumber;
@@ -445,6 +574,8 @@ const addItems = () => {
             i++;
           }
         }
+
+        darkMOd(drkCnd);
       }
     };
 
@@ -509,7 +640,11 @@ const hideCopy = (e) => {
 
 const CopyTXT_ = () => {
   translateCopy_.style.transform = `translateX(0px)`;
-  navigator.clipboard.writeText(previewOn_.innerText);
+  if (previewOn_1.innerHTML === "") {
+    navigator.clipboard.writeText(previewOn_.innerText);
+  } else {
+    navigator.clipboard.writeText(previewOn_1.innerText);
+  }
 };
 
 const translateCopy = (e) => {
@@ -518,19 +653,27 @@ const translateCopy = (e) => {
 
     const async_load = () => {
       loadNow();
-      previewOn_.innerHTML = allTXTcpy;
+      previewOn_.innerHTML = largePreviewTXT;
+      previewOn_1.innerHTML = allTXTcpy;
+      stopLoad();
+    };
+
+    const single_load = () => {
+      loadNow();
+      previewOn_.innerHTML = singleTXTcpy;
+      previewOn_1.innerHTML = "";
       stopLoad();
     };
 
     if (e.target.innerText.includes("Copy all")) {
       async_load();
     } else if (e.target.innerText.includes("Copy this")) {
-      previewOn_.innerHTML = singleTXTcpy;
+      single_load();
     } else {
       if (e.target.parentNode.innerText.includes(`Copy all`)) {
         async_load();
       } else {
-        previewOn_.innerHTML = singleTXTcpy;
+        single_load();
       }
     }
   }
@@ -588,7 +731,7 @@ const getOnePack = async (e, e2, e3) => {
       }
     });
     if (mtch === 0) {
-      data = await Get_Data(`../json/quran/surahs/${e}.json`);
+      data = await Get_Data(`${jsonPTH}quran/surahs/${e}.json`);
 
       currentQuranOrHadithChapter.allSurah.push({ surahNo: e, ayahs: data });
 
@@ -597,6 +740,8 @@ const getOnePack = async (e, e2, e3) => {
       currentQuranOrHadithChapter.allSurah.forEach(sameForEach);
       srlTop_("SrllTop", 150);
     }
+
+    darkMOd(drkCnd);
   } else {
     if (e3 === `books`) {
       currentPageScrollingOn = "Chapters";
@@ -631,7 +776,7 @@ const getOnePack = async (e, e2, e3) => {
         }
       });
       if (mtch === 0) {
-        data = await Get_Data(`../json/hadiths/${e}/${e}_Index.json`);
+        data = await Get_Data(`${jsonPTH}hadiths/${e}/${e}_Index.json`);
 
         currentQuranOrHadithChapter.HDbooksWithChapter.push({
           bookNo: e,
@@ -645,6 +790,7 @@ const getOnePack = async (e, e2, e3) => {
       }
 
       selections_.innerHTML += `
+          <div id="slcScrll"></div>
           <span>
             <select name="surahSelect_2" style="display:none"></select>
           </span>
@@ -657,7 +803,13 @@ const getOnePack = async (e, e2, e3) => {
 
       selectioned_1 = document.querySelector(`select[name="surahSelect_1"]`);
       selectioned_1.addEventListener("change", getOnePackSelected_1);
+
+      darkMOd(drkCnd);
     } else {
+      setTimeout(() => {
+        srlTop_("slcScrll", 150);
+      }, 500);
+
       currentPageScrollingOn = "Hadiths";
       scrollToGetCount = loadThisManyTimes;
       scrollSpark = 0;
@@ -685,7 +837,7 @@ const getOnePack = async (e, e2, e3) => {
       });
       if (mtch === 0) {
         data = await Get_Data(
-          `../json/hadiths/${selectioned_1.value}/${selectioned_1.value}_Chapter_${e}.json`
+          `${jsonPTH}hadiths/${selectioned_1.value}/${selectioned_1.value}_Chapter_${e}.json`
         );
 
         currentQuranOrHadithChapter.packOfChaptersHD.push({
@@ -699,6 +851,8 @@ const getOnePack = async (e, e2, e3) => {
         currentQuranOrHadithChapter.packOfChaptersHD.forEach(sameForEach);
         srlTop_("SrllTop", 150);
       }
+
+      darkMOd(drkCnd);
     }
   }
 
@@ -731,7 +885,8 @@ const getOneItem = function (e) {
     e.type !== "mousedown" &&
     e.type !== "touchstart" &&
     e.type !== "mouseup" &&
-    e.type !== "touchcancel"
+    e.type !== "touchcancel" &&
+    e.type !== "touchend"
   ) {
     if (
       targeted1 === cond_ ||
@@ -769,6 +924,7 @@ const getOneItem = function (e) {
           //${JSON.stringify(data)}
           singleTXTcpy = ``;
           allTXTcpy = ``;
+          largePreviewTXT = ``;
           let data = ``;
 
           const commonFunc = (e) => {
@@ -799,86 +955,85 @@ const getOneItem = function (e) {
           let cmdCond_ = commonCondMtc();
           commonFunc(cmdCond_);
 
+          const largePreviewTXTentry = (up_dataLN, data, i, cond_string) => {
+            const cond_ck = (cond_string) => {
+              if (cond_string === "Hadith") {
+                largePreviewTXT += tamplateString.HDallTXTcpy(data);
+              } else {
+                largePreviewTXT += tamplateString.QrnallTXTcpy(
+                  currentsurahlive,
+                  data,
+                  i
+                );
+              }
+            };
+
+            if (loadThisManyTimes > i) {
+              cond_ck(cond_string);
+            } else if (loadThisManyTimes < i && up_dataLN === i + 1) {
+              largePreviewTXT += `
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              <p>. .</p>
+              `;
+
+              cond_ck(cond_string);
+            }
+          };
+
+          const cmnForEach = (data, cond_string) => {
+            let up_dataLN = data.length;
+
+            if (cond_string === "Hadith") {
+              data.forEach((data, i) => {
+                largePreviewTXTentry(up_dataLN, data, i, "Hadith");
+
+                if (parseInt(currentsurahtext) === i + 1) {
+                  singleTXTcpy = tamplateString.HDsingleTXTcpy(data);
+
+                  allTXTcpy += tamplateString.HDallTXTcpy(data);
+                } else {
+                  allTXTcpy += tamplateString.HDallTXTcpy(data);
+                }
+              });
+            } else {
+              data.forEach((data, i) => {
+                largePreviewTXTentry(up_dataLN, data, i, "Quran");
+
+                if (parseInt(currentsurahtext) === i + 1) {
+                  singleTXTcpy = tamplateString.QrnsingleTXTcpy(
+                    currentsurahlive,
+                    currentsurahtext,
+                    data
+                  );
+
+                  allTXTcpy += tamplateString.QrnallTXTcpy(
+                    currentsurahlive,
+                    data,
+                    i
+                  );
+                } else {
+                  allTXTcpy += tamplateString.QrnallTXTcpy(
+                    currentsurahlive,
+                    data,
+                    i
+                  );
+                }
+              });
+            }
+          };
+
           if (_copyWhat[0].innerText === "Hadith") {
-            data.forEach((data, i) => {
-              if (parseInt(currentsurahtext) === i + 1) {
-                singleTXTcpy = `
-                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
-                  data.no
-                } )</p>
-                <p>${data.currentChapter.chapterName}</p>
-                <p>${data.currentChapter.title}</p>
-                <p>${
-                  data.currentChapter.about != undefined
-                    ? data.currentChapter.about
-                    : (data.currentChapter.about = "")
-                }</p>
-                <p>${remainLineBrk(data.arabic)}</p>
-                <p>${data.narrationFrom}<br>${remainLineBrk(data.bangla)}</p>
-                <p>${remainLineBrk(data.footNote)}</p>
-                <p>${data.grade}</p>
-                `;
-
-                allTXTcpy += `
-                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
-                  data.no
-                } )</p>
-                <p>${data.currentChapter.chapterName}</p>
-                <p>${data.currentChapter.title}</p>
-                <p>${
-                  data.currentChapter.about != undefined
-                    ? data.currentChapter.about
-                    : (data.currentChapter.about = "")
-                }</p>
-                <p>${remainLineBrk(data.arabic)}</p>
-                <p>${data.narrationFrom}<br>${remainLineBrk(data.bangla)}</p>
-                <p>${remainLineBrk(data.footNote)}</p>
-                <p>${data.grade}</p>
-                `;
-              } else {
-                allTXTcpy += `
-                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
-                  data.no
-                } )</p>
-                <p>${data.currentChapter.chapterName}</p>
-                <p>${data.currentChapter.title}</p>
-                <p>${
-                  data.currentChapter.about != undefined
-                    ? data.currentChapter.about
-                    : (data.currentChapter.about = "")
-                }</p>
-                <p>${remainLineBrk(data.arabic)}</p>
-                <p>${data.narrationFrom}<br>${remainLineBrk(data.bangla)}</p>
-                <p>${remainLineBrk(data.footNote)}</p>
-                <p>${data.grade}</p>
-                `;
-              }
-            });
+            cmnForEach(data, "Hadith");
           } else {
-            data.forEach((data, i) => {
-              if (parseInt(currentsurahtext) === i + 1) {
-                singleTXTcpy = `
-                <p>Quran( ${currentsurahlive}: ${currentsurahtext} )</p>
-                <p>${data.arabic}</p>
-                <p>${data.bangla}</p>
-                <p>${data.english}</p>
-                `;
-
-                allTXTcpy += `
-                <p>Quran( ${currentsurahlive}: ${i + 1} )</p>
-                <p>${data.arabic}</p>
-                <p>${data.bangla}</p>
-                <p>${data.english}</p>
-                `;
-              } else {
-                allTXTcpy += `
-                <p>Quran( ${currentsurahlive}: ${i + 1} )</p>
-                <p>${data.arabic}</p>
-                <p>${data.bangla}</p>
-                <p>${data.english}</p>
-                `;
-              }
-            });
+            cmnForEach(data, "Quran");
           }
 
           _detail_preview.style.display = `none`;
@@ -892,7 +1047,8 @@ const getOneItem = function (e) {
   if (
     e.type === "mouseup" ||
     e.type === "touchcancel" ||
-    e.type === "touchend"
+    e.type === "touchend" ||
+    e.type === "touchmove"
   ) {
     clearInterval(mouseDowned);
     mouseDownCount = 0;
@@ -900,6 +1056,8 @@ const getOneItem = function (e) {
 };
 
 const goQuranHome = async () => {
+  changeHeightApp_();
+
   _copyWhat.forEach((wt) => {
     wt.innerText = `Ayah`;
   });
@@ -922,7 +1080,7 @@ const goQuranHome = async () => {
   };
 
   if (currentQuranOrHadithChapter.surahIndex === null) {
-    data = await Get_Data(`../json/quran/surah_Index.json`);
+    data = await Get_Data(`${jsonPTH}quran/surah_Index.json`);
 
     currentQuranOrHadithChapter.surahIndex = data;
 
@@ -950,10 +1108,13 @@ const goQuranHome = async () => {
 
   selectioned.addEventListener("change", getOnePackSelected);
 
+  darkMOd(drkCnd);
   stopLoad();
 };
 
 const goHadithsHome = async () => {
+  changeHeightApp_();
+
   _copyWhat.forEach((wt) => {
     wt.innerText = `Hadith`;
   });
@@ -976,7 +1137,7 @@ const goHadithsHome = async () => {
   };
 
   if (currentQuranOrHadithChapter.HDbookNameIndex === null) {
-    data = await Get_Data(`../json/hadiths/book_Name_index.json`);
+    data = await Get_Data(`${jsonPTH}hadiths/book_Name_index.json`);
 
     currentQuranOrHadithChapter.HDbookNameIndex = data;
 
@@ -994,6 +1155,7 @@ const goHadithsHome = async () => {
 
   selections_.innerHTML = `
         <span>Hadiths</span>
+        
         <span><select name="surahSelect_1" style="display:none">
           
         </select></span>
@@ -1002,6 +1164,7 @@ const goHadithsHome = async () => {
   selectioned_1 = document.querySelector(`select[name="surahSelect_1"]`);
   selectioned_1.innerHTML = selectionTxt;
 
+  darkMOd(drkCnd);
   stopLoad();
 };
 
@@ -1010,6 +1173,7 @@ const stopLoad = () => (loader_.style.display = "none");
 
 const goHome = (e) => {
   if (e.target.innerText === navRoutes[0].router) {
+    changeHeightApp_();
     currentPageScrollingOn = null;
 
     loadNow();
@@ -1119,6 +1283,7 @@ app_.addEventListener("mouseup", getOneItem);
 app_.addEventListener("touchstart", getOneItem);
 app_.addEventListener("touchcancel", getOneItem);
 app_.addEventListener("touchend", getOneItem);
+app_.addEventListener("touchmove", getOneItem);
 app_.addEventListener("scroll", addItems);
 previewOn_.addEventListener("click", enlarge_);
 _ok.addEventListener("click", okClose_);
@@ -1127,11 +1292,43 @@ copyType_div.forEach((div) => {
   div.addEventListener("mouseup", translateCopy);
 });
 document.documentElement.addEventListener("click", hideCopy);
+document.querySelector(".settingsDiv").addEventListener("click", hideSettings);
 document.documentElement.addEventListener("mouseup", () => {
   bodyMouseDownedWhenGoingToCopyCount = 0;
+
+  document.querySelector("#vol").removeEventListener("mousemove", mousemoveVol);
+  document.querySelector("#vol").removeEventListener("touchmove", mousemoveVol);
 });
+document.documentElement.addEventListener("touchend", () => {
+  document.querySelector("#vol").removeEventListener("touchmove", mousemoveVol);
+});
+document.documentElement.addEventListener("touchcancel", () => {
+  document.querySelector("#vol").removeEventListener("touchmove", mousemoveVol);
+});
+document.querySelector("div.triggerSetings").addEventListener("click", () => {
+  document.querySelector("div.settingsDiv").style.display = "flex";
+});
+document.querySelector("#vol").addEventListener("mousedown", () => {
+  document.querySelector("#vol").addEventListener("mousemove", mousemoveVol);
+});
+document.querySelector("#vol").addEventListener("touchstart", () => {
+  document.querySelector("#vol").addEventListener("touchmove", mousemoveVol);
+});
+document
+  .querySelector("select[name='mo_de']")
+  .addEventListener("change", (e) => {
+    let vl = parseInt(e.target.value);
+    drkCnd = vl;
+
+    bodyDRK(drkCnd);
+    darkMOd(drkCnd);
+  });
 
 //commands
+VOL_value();
+changeHeightApp_();
 stopLoad();
+bodyDRK(drkCnd);
+
 //exports
 export { appTopics_init };

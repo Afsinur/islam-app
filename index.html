@@ -37,6 +37,8 @@
               <div>
                 <h3>Preview</h3>
 
+                <div class="previewOn_1"></div>
+
                 <div class="previewOn">
                   Something went wrong! please try again.
                 </div>
@@ -61,6 +63,39 @@
       </div>
 
       <div class="selections_"></div>
+    </div>
+
+    <div class="triggerSetings">
+      <img width="35" src="icons/settings.png" alt="settings" />
+    </div>
+
+    <div class="settingsDiv">
+      <div class="Stopics">
+        <h3 class="spanEngFont" style="color: #404040; margin-bottom: 10px">
+          Settings
+        </h3>
+
+        <p>
+          <label for="vol" class="spanEngFont"
+            >Load (between 0 and 50) items:</label
+          >
+          <input type="range" id="vol" name="vol" min="0" max="50" />
+          <span class="VOL spanEngFont"></span>
+        </p>
+
+        <p>
+          <label for="mode_" class="spanEngFont">Islam-app mode:</label><br />
+          <select
+            class="spanEngFont"
+            style="border-radius: 5px; padding: 5px"
+            name="mo_de"
+            id="mode_"
+          >
+            <option value="0">Normal</option>
+            <option value="1">Dark</option>
+          </select>
+        </p>
+      </div>
     </div>
 
     <div class="app"></div>

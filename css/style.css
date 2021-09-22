@@ -3,6 +3,8 @@
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
+  transition: 150ms ease-in-out;
+  transition-property: background, color;
 }
 
 :root {
@@ -47,6 +49,7 @@ button.appTopic_ {
   border-radius: 5px;
   box-shadow: 0 0 10px 2px rgb(0, 0, 0, 0.25);
   cursor: pointer;
+  background: rgb(212 212 212);
 }
 
 button.appTopic_:hover {
@@ -86,13 +89,17 @@ div.navBar {
   top: 0;
   left: 0;
   width: 100%;
-  color: #f5f3f3;
+  color: #f5f3f3 !important;
   display: flex;
   flex-direction: column;
   font-size: 20px;
   z-index: 1;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+div.navBar span {
+  cursor: pointer;
 }
 
 div.navBar > div {
@@ -217,12 +224,10 @@ div.singleSurahTexts > div span {
   width: 100%;
   font-family: AponaLohit;
   font-weight: 500;
-  color: #404040;
   text-align: center;
 }
 
 .spanEngFont1 {
-  color: #404040;
   text-align: center;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
@@ -344,6 +349,10 @@ div.previewOn {
   cursor: pointer;
 }
 
+div.previewOn_1 {
+  display: none;
+}
+
 /*div.copyDivTextContainer*/
 div.copyDivTextContainer {
   display: none;
@@ -381,6 +390,47 @@ div.enlarge_preview > button {
   cursor: pointer;
 }
 
+/**/
+.triggerSetings {
+  height: 35px;
+  width: 35px;
+  padding: 2px 5px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  color: #f8f2f2;
+  border-radius: 50%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.settingsDiv {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+div.Stopics {
+  position: absolute;
+  height: 150px;
+  width: 250px;
+  background: rgb(240, 233, 206);
+  padding: 10px;
+  border-radius: 5px;
+}
+
 /*loader*/
 .loader_ {
   position: fixed;
@@ -390,10 +440,10 @@ div.enlarge_preview > button {
   height: 150px;
   width: 150px;
   border-radius: 50%;
-  border-left: 2px solid #0477fb;
-  border-right: 2px solid #0477fb;
-  border-top: 2px solid #0477fb;
-  border-bottom: 2px solid transparent;
+  border-left: 8px solid #0477fb;
+  border-right: 8px solid #0477fb;
+  border-top: 8px solid #0477fb;
+  border-bottom: 8px solid transparent;
   z-index: 1;
   animation: _loader 400ms linear infinite forwards;
   display: block;
