@@ -18,7 +18,7 @@ const copyDivTextContainer_ = document.querySelector(
 //javascript styles
 
 //variables
-const jsonPTH = `../json/`; //for github deploy https://raw.githubusercontent.com/Afsinur/islam-app/master/json/
+const jsonPTH = `https://raw.githubusercontent.com/Afsinur/islam-app/master/json/`; //`../json/`; / for github deploy https://raw.githubusercontent.com/Afsinur/islam-app/master/json/
 let appTopicDiv,
   selectioned,
   selectioned_1,
