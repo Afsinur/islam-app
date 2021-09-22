@@ -887,7 +887,7 @@ const getOneItem = function (e) {
     e.type !== "mouseup" &&
     e.type !== "touchcancel" &&
     e.type !== "touchend" &&
-    e.type === "touchmove"
+    e.type !== "touchmove"
   ) {
     if (
       targeted1 === cond_ ||
