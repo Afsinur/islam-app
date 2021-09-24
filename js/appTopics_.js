@@ -18,7 +18,7 @@ const copyDivTextContainer_ = document.querySelector(
 //javascript styles
 
 //variables
-const jsonPTH = `https://raw.githubusercontent.com/Afsinur/islam-app/master/json/`; //`../json/`; / for github deploy https://raw.githubusercontent.com/Afsinur/islam-app/master/json/
+const jsonPTH = `https://raw.githubusercontent.com/Afsinur/islam-app/master/json/`; // for github deploy https://raw.githubusercontent.com/Afsinur/islam-app/master/json/
 let appTopicDiv,
   selectioned,
   selectioned_1,
@@ -26,7 +26,8 @@ let appTopicDiv,
   mouseDowned,
   singleTXTcpy,
   allTXTcpy,
-  largePreviewTXT;
+  largePreviewTXT,
+  selectionTxt;
 const appTopics_ = [
   {
     arabicTitle: "اقرأ القرآن",
@@ -54,6 +55,7 @@ let scrollToGetCount = 0;
 let currentPageScrollingOn = null;
 let scrollSpark = 0;
 let drkCnd = 0;
+let ascendingWaySurahAndHD = true;
 
 //objects
 const tamplateString = {
@@ -332,6 +334,146 @@ const Get_Data = async (url) => {
 };
 
 //functions
+const SLT_mo_de = (e) => {
+  let vl = parseInt(e.target.value);
+  drkCnd = vl;
+
+  bodyDRK(drkCnd);
+  darkMOd(drkCnd);
+};
+
+const SLT_mo_de_1 = (e) => {
+  if (e.target.value === "1") {
+    ascendingWaySurahAndHD = true;
+  } else {
+    ascendingWaySurahAndHD = false;
+  }
+
+  let cmdCond_ = commonCondMtc();
+
+  const sameForEach_ = (data, e) => {
+    selectionTxt = ``;
+
+    if (e === 2) {
+      if (ascendingWaySurahAndHD) {
+        data.forEach((data, i) => {
+          //${JSON.stringify(data)}
+          selectionTxt += tamplateString.quran_slect(i, data);
+        });
+      } else {
+        sameForLoop(data, 12, null);
+      }
+    } else if (e === 4) {
+      if (ascendingWaySurahAndHD) {
+        data.forEach((data, i) => {
+          //${JSON.stringify(data)}
+          selectionTxt += tamplateString.HDbk_slect(i, data);
+        });
+      } else {
+        sameForLoop(data, 21, null);
+      }
+    } else if (e === 5) {
+      data.forEach((data) => {
+        if (data.bookNo === selectioned_1.value) {
+          if (ascendingWaySurahAndHD) {
+            data.chapters.forEach((data, i) => {
+              //${JSON.stringify(data)}
+              selectionTxt += tamplateString.HDbkCPSlect_(i, data);
+            });
+          } else {
+            sameForLoop(data.chapters, 31, null);
+          }
+        }
+      });
+    }
+  };
+
+  const cmdCond_F = (cmdCond_) => {
+    if (cmdCond_ === 1) {
+      loadNow();
+      goQuranHome();
+    } else if (cmdCond_ === 2) {
+      let pre_ = selectioned.value;
+
+      sameForEach_(currentQuranOrHadithChapter.surahIndex, 2);
+
+      document.querySelector(`select[name="surahSelect"]`).innerHTML =
+        selectionTxt;
+
+      selectioned.value = pre_;
+
+      getOnePackSelected();
+    } else if (cmdCond_ === 3) {
+      loadNow();
+      goHadithsHome();
+    } else if (cmdCond_ === 4) {
+      let pre_ = selectioned_1.value;
+
+      sameForEach_(currentQuranOrHadithChapter.HDbookNameIndex, 4);
+
+      document.querySelector(`select[name="surahSelect_1"]`).innerHTML =
+        selectionTxt;
+
+      selectioned_1.value = pre_;
+
+      getOnePackSelected_1();
+    } else if (cmdCond_ === 5) {
+      let pre_ = selectioned_2.value;
+
+      cmdCond_F(4);
+
+      sameForEach_(currentQuranOrHadithChapter.HDbooksWithChapter, 5);
+
+      document.querySelector(`select[name="surahSelect_2"]`).innerHTML =
+        selectionTxt;
+
+      selectioned_2.value = pre_;
+
+      getOnePackSelected_2();
+    }
+  };
+
+  cmdCond_F(cmdCond_);
+};
+
+const sameForLoop = (arr, e_While_way, e) => {
+  let acendingFirstLoad = arr.length - loadThisManyTimes;
+
+  for (let index = arr.length - 1; index >= 0; index--) {
+    const element = arr[index];
+
+    if (acendingFirstLoad < index) {
+      if (e_While_way === 1) {
+        app_.innerHTML += tamplateString.quran_index(index, element);
+      } else if (e_While_way === 2) {
+        app_.innerHTML += tamplateString.ayahs_(index, e, element);
+      } else if (e_While_way === 3) {
+        app_.innerHTML += tamplateString.Hdbks_(index, element);
+      } else if (e_While_way === 4) {
+        app_.innerHTML += tamplateString.HDbooksCP(index, element);
+      } else if (e_While_way === 5) {
+        app_.innerHTML += tamplateString.singleHD(e, index, element);
+      }
+    }
+
+    if (e_While_way === 12) {
+      selectionTxt += tamplateString.quran_slect(index, element);
+    } else if (e_While_way === 21) {
+      selectionTxt += tamplateString.HDbk_slect(index, element);
+    } else if (e_While_way === 31) {
+      selectionTxt += tamplateString.HDbkCPSlect_(index, element);
+    }
+  }
+};
+
+const marginTop_ = () => {
+  app_ = document.querySelector("div.app");
+
+  app_.style.marginTop = `${
+    document.querySelector("div.top_").clientHeight + 40
+  }px`;
+};
+
 const bodyDRK = (drkCnd) => {
   if (drkCnd === 1) {
     document.body.style.background = `#505050`;
@@ -465,8 +607,65 @@ const addItems = () => {
       ) {
         let forward_ = (scrollToGetCount += incLoadByNumber);
         let i = forward_ - incLoadByNumber;
+        let x;
+
+        const set_descLN = (e) => {
+          if (!ascendingWaySurahAndHD) {
+            let descLN;
+
+            if (e === 1) {
+              descLN = currentQuranOrHadithChapter.surahIndex.length;
+            } else if (e === 2) {
+              currentQuranOrHadithChapter.allSurah.forEach((surah, i) => {
+                if (surah.surahNo === selectioned.value) {
+                  descLN = currentQuranOrHadithChapter.allSurah[i].ayahs.length;
+                }
+              });
+            } else if (e === 3) {
+              descLN = currentQuranOrHadithChapter.HDbookNameIndex.length;
+            } else if (e === 4) {
+              currentQuranOrHadithChapter.HDbooksWithChapter.forEach(
+                (cpter, i) => {
+                  if (cpter.bookNo === selectioned_1.value) {
+                    descLN =
+                      currentQuranOrHadithChapter.HDbooksWithChapter[i].chapters
+                        .length;
+                  }
+                }
+              );
+            } else if (e === 5) {
+              currentQuranOrHadithChapter.packOfChaptersHD.forEach(
+                (pack, i) => {
+                  if (
+                    pack.bookNo === selectioned_1.value &&
+                    pack.chapterNo === selectioned_2.value
+                  ) {
+                    descLN =
+                      currentQuranOrHadithChapter.packOfChaptersHD[i]
+                        .chapterHadiths.length;
+                  }
+                }
+              );
+            }
+
+            forward_ -= incLoadByNumber;
+            i = descLN - forward_;
+            x = i - incLoadByNumber;
+          }
+        };
+
+        const descOrase_ = () => {
+          if (ascendingWaySurahAndHD) {
+            return i < forward_;
+          } else {
+            return i > x;
+          }
+        };
+
         if (e === 1) {
-          while (i < forward_) {
+          set_descLN(e);
+
+          while (descOrase_()) {
             let data;
             if (currentQuranOrHadithChapter.surahIndex.length > i) {
               data = currentQuranOrHadithChapter.surahIndex[i];
@@ -476,14 +675,21 @@ const addItems = () => {
               app_.innerHTML += tamplateString.quran_index(i, data);
             }
 
-            i++;
+            if (ascendingWaySurahAndHD) {
+              i++;
+            } else {
+              i--;
+            }
           }
         }
 
         if (e === 2) {
-          while (i < forward_) {
+          set_descLN(e);
+
+          while (descOrase_()) {
             let e_i = i;
             let data;
+
             currentQuranOrHadithChapter.allSurah.forEach((surah, i) => {
               if (surah.surahNo === selectioned.value) {
                 if (
@@ -498,12 +704,17 @@ const addItems = () => {
               app_.innerHTML += tamplateString.ayahs_(i, e, data);
             }
 
-            i++;
+            if (ascendingWaySurahAndHD) {
+              i++;
+            } else {
+              i--;
+            }
           }
         }
 
         if (e === 3) {
-          while (i < forward_) {
+          set_descLN(e);
+          while (descOrase_()) {
             let data;
 
             if (currentQuranOrHadithChapter.HDbookNameIndex.length > i) {
@@ -514,12 +725,17 @@ const addItems = () => {
               app_.innerHTML += tamplateString.Hdbks_(i, data);
             }
 
-            i++;
+            if (ascendingWaySurahAndHD) {
+              i++;
+            } else {
+              i--;
+            }
           }
         }
 
         if (e === 4) {
-          while (i < forward_) {
+          set_descLN(e);
+          while (descOrase_()) {
             let e_i = i;
             let data;
 
@@ -542,12 +758,18 @@ const addItems = () => {
               app_.innerHTML += tamplateString.HDbooksCP(i, data);
             }
 
-            i++;
+            if (ascendingWaySurahAndHD) {
+              i++;
+            } else {
+              i--;
+            }
           }
         }
 
         if (e === 5) {
-          while (i < forward_) {
+          set_descLN(e);
+
+          while (descOrase_()) {
             let e_i = i;
             let data;
 
@@ -571,7 +793,11 @@ const addItems = () => {
               app_.innerHTML += tamplateString.singleHD(e, i, data);
             }
 
-            i++;
+            if (ascendingWaySurahAndHD) {
+              i++;
+            } else {
+              i--;
+            }
           }
         }
 
@@ -696,12 +922,24 @@ const getOnePack = async (e, e2, e3) => {
   app_.innerHTML = ``;
   app_.innerHTML += `<div id="SrllTop"></div>`;
 
-  let child_forEach = (child, i) => {
-    if (i + 1 === parseInt(e)) {
-      child.setAttribute("selected", "selected");
-    } else {
-      child.removeAttribute("selected");
-    }
+  const des_correctLP = (data) => {
+    let LN = data.length;
+
+    data.forEach((child, i) => {
+      if (ascendingWaySurahAndHD) {
+        if (i + 1 === parseInt(e)) {
+          child.setAttribute("selected", "selected");
+        } else {
+          child.removeAttribute("selected");
+        }
+      } else {
+        if (i === LN - parseInt(e)) {
+          child.setAttribute("selected", "selected");
+        } else {
+          child.removeAttribute("selected");
+        }
+      }
+    });
   };
 
   //${JSON.stringify(data)}
@@ -711,17 +949,22 @@ const getOnePack = async (e, e2, e3) => {
     scrollSpark = 0;
 
     selectioned.removeAttribute("style");
-    Array.from(selectioned.children).forEach(child_forEach);
+    des_correctLP(Array.from(selectioned.children));
 
     let data;
     let mtch = 0;
+
     const sameForEach = (surah) => {
       if (surah.surahNo === e) {
-        surah.ayahs.forEach((data, i) => {
-          if (loadThisManyTimes > i) {
-            app_.innerHTML += tamplateString.ayahs_(i, e, data);
-          }
-        });
+        if (ascendingWaySurahAndHD) {
+          surah.ayahs.forEach((data, i) => {
+            if (loadThisManyTimes > i) {
+              app_.innerHTML += tamplateString.ayahs_(i, e, data);
+            }
+          });
+        } else {
+          sameForLoop(surah.ayahs, 2, e);
+        }
       }
     };
 
@@ -752,21 +995,27 @@ const getOnePack = async (e, e2, e3) => {
       if (selectioned_2 != undefined) {
         selectioned_2.setAttribute("style", "display:none");
       }
-      Array.from(selectioned_1.children).forEach(child_forEach);
+      des_correctLP(Array.from(selectioned_1.children));
 
       let data;
       let mtch = 0;
-      let selectionTxt = ``;
+      selectionTxt = ``;
+
       const sameForEach = (book) => {
         if (book.bookNo === e) {
-          book.chapters.forEach((data, i) => {
-            //${JSON.stringify(data)}
-            selectionTxt += tamplateString.HDbkCPSlect_(i, data);
+          if (ascendingWaySurahAndHD) {
+            book.chapters.forEach((data, i) => {
+              //${JSON.stringify(data)}
+              selectionTxt += tamplateString.HDbkCPSlect_(i, data);
 
-            if (loadThisManyTimes > i) {
-              app_.innerHTML += tamplateString.HDbooksCP(i, data);
-            }
-          });
+              if (loadThisManyTimes > i) {
+                app_.innerHTML += tamplateString.HDbooksCP(i, data);
+              }
+            });
+          } else {
+            sameForLoop(book.chapters, 31, null);
+            sameForLoop(book.chapters, 4, null);
+          }
         }
       };
 
@@ -816,20 +1065,26 @@ const getOnePack = async (e, e2, e3) => {
 
       selectioned_2.removeAttribute("style");
       selectioned_1 = document.querySelector(`select[name="surahSelect_1"]`);
-      Array.from(selectioned_2.children).forEach(child_forEach);
+      des_correctLP(Array.from(selectioned_2.children));
 
       let data;
       let mtch = 0;
+
       const sameForEach = (pack) => {
         if (pack.bookNo === selectioned_1.value && pack.chapterNo === e) {
-          pack.chapterHadiths.forEach((data, i) => {
-            //${JSON.stringify(data)}
-            if (loadThisManyTimes > i) {
-              app_.innerHTML += tamplateString.singleHD(e, i, data);
-            }
-          });
+          if (ascendingWaySurahAndHD) {
+            pack.chapterHadiths.forEach((data, i) => {
+              //${JSON.stringify(data)}
+              if (loadThisManyTimes > i) {
+                app_.innerHTML += tamplateString.singleHD(e, i, data);
+              }
+            });
+          } else {
+            sameForLoop(pack.chapterHadiths, 5, e);
+          }
         }
       };
+
       currentQuranOrHadithChapter.packOfChaptersHD.forEach((pack) => {
         if (pack.chapterNo === e && pack.bookNo === selectioned_1.value) {
           mtch = 1;
@@ -1057,8 +1312,6 @@ const getOneItem = function (e) {
 };
 
 const goQuranHome = async () => {
-  changeHeightApp_();
-
   _copyWhat.forEach((wt) => {
     wt.innerText = `Ayah`;
   });
@@ -1070,7 +1323,8 @@ const goQuranHome = async () => {
   app_.innerHTML = ``;
   app_.innerHTML += `<div id="SrllTop"></div>`;
   let data;
-  let selectionTxt = ``;
+  selectionTxt = ``;
+
   const sameForEach = (data, i) => {
     //${JSON.stringify(data)}
     selectionTxt += tamplateString.quran_slect(i, data);
@@ -1080,14 +1334,23 @@ const goQuranHome = async () => {
     }
   };
 
+  const do_sam_e = (data) => {
+    if (ascendingWaySurahAndHD) {
+      data.forEach(sameForEach);
+    } else {
+      sameForLoop(data, 12, null);
+      sameForLoop(data, 1, null);
+    }
+  };
+
   if (currentQuranOrHadithChapter.surahIndex === null) {
     data = await Get_Data(`${jsonPTH}quran/surah_Index.json`);
 
     currentQuranOrHadithChapter.surahIndex = data;
 
-    currentQuranOrHadithChapter.surahIndex.forEach(sameForEach);
+    do_sam_e(currentQuranOrHadithChapter.surahIndex);
   } else {
-    currentQuranOrHadithChapter.surahIndex.forEach(sameForEach);
+    do_sam_e(currentQuranOrHadithChapter.surahIndex);
     srlTop_("SrllTop", 150);
   }
 
@@ -1114,8 +1377,6 @@ const goQuranHome = async () => {
 };
 
 const goHadithsHome = async () => {
-  changeHeightApp_();
-
   _copyWhat.forEach((wt) => {
     wt.innerText = `Hadith`;
   });
@@ -1127,7 +1388,7 @@ const goHadithsHome = async () => {
   app_.innerHTML = ``;
   app_.innerHTML += `<div id="SrllTop"></div>`;
   let data;
-  let selectionTxt = ``;
+  selectionTxt = ``;
   const sameForEach = (data, i) => {
     //${JSON.stringify(data)}
     selectionTxt += tamplateString.HDbk_slect(i, data);
@@ -1137,14 +1398,23 @@ const goHadithsHome = async () => {
     }
   };
 
+  const do_sam_e = (data) => {
+    if (ascendingWaySurahAndHD) {
+      data.forEach(sameForEach);
+    } else {
+      sameForLoop(data, 21, null);
+      sameForLoop(data, 3, null);
+    }
+  };
+
   if (currentQuranOrHadithChapter.HDbookNameIndex === null) {
     data = await Get_Data(`${jsonPTH}hadiths/book_Name_index.json`);
 
     currentQuranOrHadithChapter.HDbookNameIndex = data;
 
-    currentQuranOrHadithChapter.HDbookNameIndex.forEach(sameForEach);
+    do_sam_e(currentQuranOrHadithChapter.HDbookNameIndex);
   } else {
-    currentQuranOrHadithChapter.HDbookNameIndex.forEach(sameForEach);
+    do_sam_e(currentQuranOrHadithChapter.HDbookNameIndex);
     srlTop_("SrllTop", 150);
   }
 
@@ -1174,7 +1444,6 @@ const stopLoad = () => (loader_.style.display = "none");
 
 const goHome = (e) => {
   if (e.target.innerText === navRoutes[0].router) {
-    changeHeightApp_();
     currentPageScrollingOn = null;
 
     loadNow();
@@ -1317,19 +1586,18 @@ document.querySelector("#vol").addEventListener("touchstart", () => {
 });
 document
   .querySelector("select[name='mo_de']")
-  .addEventListener("change", (e) => {
-    let vl = parseInt(e.target.value);
-    drkCnd = vl;
+  .addEventListener("change", SLT_mo_de);
 
-    bodyDRK(drkCnd);
-    darkMOd(drkCnd);
-  });
+document
+  .querySelector(`select[name="mo_de_1"]`)
+  .addEventListener("change", SLT_mo_de_1);
 
 //commands
 VOL_value();
 changeHeightApp_();
 stopLoad();
 bodyDRK(drkCnd);
+marginTop_();
 
 //exports
 export { appTopics_init };
