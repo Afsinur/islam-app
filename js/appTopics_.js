@@ -27,7 +27,10 @@ let appTopicDiv,
   singleTXTcpy,
   allTXTcpy,
   largePreviewTXT,
-  selectionTxt;
+  selectionTxt,
+  _arb_ = true,
+  _ban_ = true,
+  _eng_ = true;
 const appTopics_ = [
   {
     arabicTitle: "اقرأ القرآن",
@@ -120,15 +123,21 @@ const tamplateString = {
    <div data-currentsurahtext="${i + 1}" data-currentsurahlive="${e}">
     <span class="spanBanFont1 surahArb" data-currentsurahtext="${
       i + 1
-    }" data-currentsurahlive="${e}">${data.arabic}</span><br><br>
+    }" data-currentsurahlive="${e}">${hideLNG(
+      data.arabic,
+      "arb"
+    )}</span><br><br>
 
     <span class="spanBanFont1" data-currentsurahtext="${
       i + 1
-    }" data-currentsurahlive="${e}">${data.bangla}</span><br><br>
+    }" data-currentsurahlive="${e}">${hideLNG(
+      data.bangla,
+      "ban"
+    )}</span><br><br>
    
     <span class="spanEngFont1" data-currentsurahtext="${
       i + 1
-    }" data-currentsurahlive="${e}">${data.english}</span>
+    }" data-currentsurahlive="${e}">${hideLNG(data.english, "eng")}</span>
    </div>
   </div>
   `;
@@ -334,6 +343,39 @@ const Get_Data = async (url) => {
 };
 
 //functions
+const hideLNG = (e, txt_) => {
+  if (txt_ === "arb" && _arb_) {
+    return e;
+  } else if (txt_ === "ban" && _ban_) {
+    return e;
+  } else if (txt_ === "eng" && _eng_) {
+    return e;
+  } else {
+    return "";
+  }
+};
+
+const checkBX = (e) => {
+  let e_T = e.target;
+
+  const ck_LNG = (EV) => {
+    if (e_T.value === "arb") {
+      _arb_ = EV;
+    } else if (e_T.value === "ban") {
+      _ban_ = EV;
+    } else if (e_T.value === "eng") {
+      _eng_ = EV;
+    }
+  };
+
+  ck_LNG(e_T.checked);
+
+  let cmdCond_ = commonCondMtc();
+  if (cmdCond_ === 2) {
+    getOnePackSelected();
+  }
+};
+
 const SLT_mo_de = (e) => {
   let vl = parseInt(e.target.value);
   drkCnd = vl;
@@ -1591,6 +1633,10 @@ document
 document
   .querySelector(`select[name="mo_de_1"]`)
   .addEventListener("change", SLT_mo_de_1);
+
+document.querySelectorAll(`input[type="checkbox"]`).forEach((bx) => {
+  bx.addEventListener("change", checkBX);
+});
 
 //commands
 VOL_value();
