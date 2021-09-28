@@ -279,9 +279,9 @@ const tamplateString = {
   },
   HDsingleTXTcpy: (data) => {
     return `
-                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
-      data.no
-    } )</p>
+                <p>Hadith( ${get_HDBKname(selectioned_1.value)}: ${
+      selectioned_2.value
+    } | ${data.no} )</p>
                 <p>${data.currentChapter.chapterName}</p>
                 <p>${data.currentChapter.title}</p>
                 <p>${
@@ -297,9 +297,9 @@ const tamplateString = {
   },
   HDallTXTcpy: (data) => {
     return `
-                <p>Hadith( ${selectioned_1.value}: ${selectioned_1.value} | ${
-      data.no
-    } )</p>
+                <p>Hadith( ${get_HDBKname(selectioned_1.value)}: ${
+      selectioned_2.value
+    } | ${data.no} )</p>
                 <p>${data.currentChapter.chapterName}</p>
                 <p>${data.currentChapter.title}</p>
                 <p>${
@@ -343,6 +343,14 @@ const Get_Data = async (url) => {
 };
 
 //functions
+const get_HDBKname = (e) => {
+  let str =
+    currentQuranOrHadithChapter.HDbookNameIndex[
+      parseInt(selectioned_1.value) - 1
+    ].bookName;
+  return str;
+};
+
 const hideLNG = (e, txt_) => {
   if (txt_ === "arb" && _arb_) {
     return e;
@@ -743,7 +751,11 @@ const addItems = () => {
             });
 
             if (data !== undefined) {
-              app_.innerHTML += tamplateString.ayahs_(i, e, data);
+              app_.innerHTML += tamplateString.ayahs_(
+                i,
+                selectioned.value,
+                data
+              );
             }
 
             if (ascendingWaySurahAndHD) {
@@ -1338,7 +1350,7 @@ const getOneItem = function (e) {
           translateCopy_.style.transform = `translateX(0px)`;
           copyDivTextContainer_.style.display = `block`;
         }
-      }, 2000);
+      }, 1000);
     }
   }
 
@@ -1487,7 +1499,6 @@ const stopLoad = () => (loader_.style.display = "none");
 const goHome = (e) => {
   if (e.target.innerText === navRoutes[0].router) {
     currentPageScrollingOn = null;
-
     loadNow();
     resetAppTopicSection();
 
