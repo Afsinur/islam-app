@@ -121,23 +121,23 @@ const tamplateString = {
    </div>
 
    <div data-currentsurahtext="${i + 1}" data-currentsurahlive="${e}">
-    <span class="spanBanFont1 surahArb" data-currentsurahtext="${
-      i + 1
-    }" data-currentsurahlive="${e}">${hideLNG(
-      data.arabic,
+    <span style="${hideLNG(
       "arb"
-    )}</span><br><br>
+    )}" class="spanBanFont1 surahArb" data-currentsurahtext="${
+      i + 1
+    }" data-currentsurahlive="${e}">${data.arabic}</span><br><br>
 
-    <span class="spanBanFont1" data-currentsurahtext="${
-      i + 1
-    }" data-currentsurahlive="${e}">${hideLNG(
-      data.bangla,
+    <span style="${hideLNG(
       "ban"
-    )}</span><br><br>
-   
-    <span class="spanEngFont1" data-currentsurahtext="${
+    )}" class="spanBanFont1" data-currentsurahtext="${
       i + 1
-    }" data-currentsurahlive="${e}">${hideLNG(data.english, "eng")}</span>
+    }" data-currentsurahlive="${e}">${data.bangla}</span><br><br>
+   
+    <span style="${hideLNG(
+      "eng"
+    )}" class="spanEngFont1" data-currentsurahtext="${
+      i + 1
+    }" data-currentsurahlive="${e}">${data.english}</span>
    </div>
   </div>
   `;
@@ -351,15 +351,18 @@ const get_HDBKname = (e) => {
   return str;
 };
 
-const hideLNG = (e, txt_) => {
+const hideLNG = (txt_) => {
+  let show = `display:block;`;
+  let hide = `display:none;`;
+
   if (txt_ === "arb" && _arb_) {
-    return e;
+    return show;
   } else if (txt_ === "ban" && _ban_) {
-    return e;
+    return show;
   } else if (txt_ === "eng" && _eng_) {
-    return e;
+    return show;
   } else {
-    return "";
+    return hide;
   }
 };
 
@@ -378,9 +381,33 @@ const checkBX = (e) => {
 
   ck_LNG(e_T.checked);
 
+  const hideORshow = (e) => {
+    let surahContainerPackedHTML = document.querySelectorAll(
+      "div.singleSurahTexts > div:nth-child(2)"
+    );
+
+    const cngIN_ARR = (inA) => {
+      Array.from(surahContainerPackedHTML).forEach((pck) => {
+        if (e_T.checked) {
+          pck.children[inA].style.display = `block`;
+        } else {
+          pck.children[inA].style.display = `none`;
+        }
+      });
+    };
+
+    if (e === "arb") {
+      cngIN_ARR(0);
+    } else if (e === "ban") {
+      cngIN_ARR(3);
+    } else if (e === "eng") {
+      cngIN_ARR(6);
+    }
+  };
+
   let cmdCond_ = commonCondMtc();
   if (cmdCond_ === 2) {
-    getOnePackSelected();
+    hideORshow(e_T.value);
   }
 };
 
@@ -1601,12 +1628,15 @@ const appTopics_init = () => {
 top_.addEventListener("click", goHome);
 selections_.addEventListener("click", goHome);
 app_.addEventListener("click", getOneItem);
+
 app_.addEventListener("mousedown", getOneItem);
 app_.addEventListener("mouseup", getOneItem);
+
 app_.addEventListener("touchstart", getOneItem);
 app_.addEventListener("touchcancel", getOneItem);
 app_.addEventListener("touchend", getOneItem);
 app_.addEventListener("touchmove", getOneItem);
+
 app_.addEventListener("scroll", addItems);
 previewOn_.addEventListener("click", enlarge_);
 _ok.addEventListener("click", okClose_);
